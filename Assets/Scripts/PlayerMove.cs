@@ -28,6 +28,7 @@ public class PlayerMove : MonoBehaviour
     private void Move()
     {
         _charCtrl.Move(Time.deltaTime * Mathf.Min(_moveDir.magnitude, 1f) * _moveSpeed * _moveDir.normalized);
+        transform.forward = Vector3.Lerp(transform.forward, _moveDir, Time.deltaTime * _rotateSpeed);
     }
     public void OnMove(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
