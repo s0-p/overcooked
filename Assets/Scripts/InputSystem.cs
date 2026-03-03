@@ -118,6 +118,15 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Throw"",
+                    ""type"": ""Button"",
+                    ""id"": ""44cb6984-e352-4cb4-87f0-d2e591c082d1"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -197,6 +206,17 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
                     ""action"": ""PickUp"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e95c19a1-bb61-47f9-bff6-f2b814537a40"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Throw"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -225,6 +245,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_PickUp = m_Player.FindAction("PickUp", throwIfNotFound: true);
+        m_Player_Throw = m_Player.FindAction("Throw", throwIfNotFound: true);
     }
 
     ~@InputSystem()
@@ -308,6 +329,7 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_PickUp;
+    private readonly InputAction m_Player_Throw;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -331,6 +353,10 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/PickUp".
         /// </summary>
         public InputAction @PickUp => m_Wrapper.m_Player_PickUp;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Throw".
+        /// </summary>
+        public InputAction @Throw => m_Wrapper.m_Player_Throw;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -366,6 +392,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @PickUp.started += instance.OnPickUp;
             @PickUp.performed += instance.OnPickUp;
             @PickUp.canceled += instance.OnPickUp;
+            @Throw.started += instance.OnThrow;
+            @Throw.performed += instance.OnThrow;
+            @Throw.canceled += instance.OnThrow;
         }
 
         /// <summary>
@@ -386,6 +415,9 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
             @PickUp.started -= instance.OnPickUp;
             @PickUp.performed -= instance.OnPickUp;
             @PickUp.canceled -= instance.OnPickUp;
+            @Throw.started -= instance.OnThrow;
+            @Throw.performed -= instance.OnThrow;
+            @Throw.canceled -= instance.OnThrow;
         }
 
         /// <summary>
@@ -460,5 +492,12 @@ public partial class @InputSystem: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPickUp(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Throw" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnThrow(InputAction.CallbackContext context);
     }
 }

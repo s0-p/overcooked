@@ -4,9 +4,10 @@ public class PlayerFunc : MonoBehaviour
 {
     [SerializeField]
     GameObject _prefHoldPoint = default;
-    GameObject _objHoldingPoint = default;
-    public GameObject ObjHolding { get; set; }
-    bool _isHolding = false;
+    Transform _holdPoint = null;
+    public GameObject SensedObj { get; set; }
+    HoldableItem _holdableItem = null;
+    bool _isHeld = false;
 
     [SerializeField]
     GameObject _prefSensor = default;
@@ -18,8 +19,8 @@ public class PlayerFunc : MonoBehaviour
 
     void Awake()
     {
-        _objHoldingPoint = Instantiate(_prefHoldPoint);
-        _objHoldingPoint.transform.SetParent(transform, false);
+        _holdPoint = Instantiate(_prefHoldPoint).transform;
+        _holdPoint.SetParent(transform, false);
 
         _objSensor = Instantiate(_prefSensor);
         _objSensor.transform.SetParent(transform, false);
@@ -30,19 +31,31 @@ public class PlayerFunc : MonoBehaviour
 
         _playerInput.PickUp.performed += OnPickUp;
         _playerInput.PickUp.canceled += OnPickUp;
+
+        _playerInput.Throw.performed += OnThrow;
     }
     
     public void OnPickUp(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
         bool isPickUp = ctx.ReadValueAsButton();
-        if(isPickUp && IsSenseIngredients && !_isHolding)
+        if(isPickUp && IsSenseIngredients && !_isHeld)
         {
-            ObjHolding.transform.SetParent(_objHoldingPoint.transform);
-            ObjHolding.GetComponent<Rigidbody>().isKinematic = true;
-            ObjHolding.transform.position = _objHoldingPoint.transform.position;
+            _holdableItem = SensedObj.GetComponent<HoldableItem>();
+            _holdableItem.OnPickUp(_holdPoint);
 
-            _isHolding = true;
+            _isHeld = true;
             IsSenseIngredients = false;
+        }
+    }
+    public void OnThrow(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        bool isKeyDown = ctx.ReadValueAsButton();
+        if(isKeyDown && _isHeld)
+        {
+            _holdableItem.OnThrow();
+            _holdableItem = null;
+
+            _isHeld = false;
         }
     }
 }

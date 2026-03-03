@@ -32,6 +32,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Throw",
+                    "type": "Button",
+                    "id": "44cb6984-e352-4cb4-87f0-d2e591c082d1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -109,6 +118,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "PickUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e95c19a1-bb61-47f9-bff6-f2b814537a40",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Throw",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

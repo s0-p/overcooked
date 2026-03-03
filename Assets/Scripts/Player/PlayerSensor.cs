@@ -19,8 +19,7 @@ public class PlayerSensor : MonoBehaviour
         if (other.CompareTag(Tag.Ingredients.ToString()))
         {
             _playerFunc.IsSenseIngredients = true;
-            _playerFunc.ObjHolding = other.gameObject;
-            Debug.Log(other.tag);
+            _playerFunc.SensedObj = other.gameObject;
         }
     }
     private void OnTriggerExit(Collider other)
@@ -28,7 +27,7 @@ public class PlayerSensor : MonoBehaviour
         if (other.CompareTag(Tag.Ingredients.ToString()))
         {
             _playerFunc.IsSenseIngredients = false;
-            _playerFunc.ObjHolding = default;
+            _playerFunc.SensedObj = default;
         }
     }
 }
