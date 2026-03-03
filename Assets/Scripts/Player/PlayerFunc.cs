@@ -6,6 +6,7 @@ public class PlayerFunc : MonoBehaviour
     GameObject _prefHoldPoint = default;
     GameObject _objHoldingPoint = default;
     public GameObject ObjHolding { get; set; }
+    bool _isHolding = false;
 
     [SerializeField]
     GameObject _prefSensor = default;
@@ -34,7 +35,7 @@ public class PlayerFunc : MonoBehaviour
     public void OnPickUp(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
         bool isPickUp = ctx.ReadValueAsButton();
-        if(isPickUp && IsSenseIngredients)
+        if(isPickUp && IsSenseIngredients && !_isHolding)
         {
             ObjHolding.transform.SetParent(_objHoldingPoint.transform);
             ObjHolding.GetComponent<Rigidbody>().isKinematic = true;
