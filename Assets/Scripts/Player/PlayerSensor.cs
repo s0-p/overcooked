@@ -16,7 +16,7 @@ public class PlayerSensor : MonoBehaviour
     }
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.CompareTag(Tag.Ingredients.ToString()))
+        if (other.CompareTag(Tag.Ingredients.ToString()))
         {
             _playerFunc.IsSenseIngredients = true;
             _playerFunc.ObjHolding = other.gameObject;

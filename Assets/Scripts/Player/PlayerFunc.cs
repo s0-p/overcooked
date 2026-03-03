@@ -39,6 +39,8 @@ public class PlayerFunc : MonoBehaviour
             ObjHolding.transform.SetParent(_objHoldingPoint.transform);
             ObjHolding.GetComponent<Rigidbody>().isKinematic = true;
             ObjHolding.transform.position = _objHoldingPoint.transform.position;
+
+            _isHolding = true;
             IsSenseIngredients = false;
         }
     }
