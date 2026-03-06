@@ -1,48 +1,78 @@
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class PlayerFunc : MonoBehaviour
 {
-    [SerializeField]
-    GameObject _prefHoldPoint = default;
-    GameObject _objHoldingPoint = default;
-    public GameObject ObjHolding { get; set; }
-    bool _isHolding = false;
+    //[SerializeField]
+    float _rayDistance = 1f;
+    Transform _rayOrigin = null;
 
-    [SerializeField]
-    GameObject _prefSensor = default;
-    GameObject _objSensor = default;
-
-    public bool IsSenseIngredients { get; set; }
+    Transform _holdPoint = null;
+    HoldableItem _holdableItem = null;
 
     InputSystem.PlayerActions _playerInput;
 
     void Awake()
     {
-        _objHoldingPoint = Instantiate(_prefHoldPoint);
-        _objHoldingPoint.transform.SetParent(transform, false);
-
-        _objSensor = Instantiate(_prefSensor);
-        _objSensor.transform.SetParent(transform, false);
+        _rayOrigin = transform.Find(Constants.RAY_ORIGIN_NAME);
+        _holdPoint = transform.Find(Constants.HOLD_POINT_NAME);
     }
     private void OnEnable()
     {
         _playerInput = InputManager.Instance.Player;
 
-        _playerInput.PickUp.performed += OnPickUp;
-        _playerInput.PickUp.canceled += OnPickUp;
-    }
-    
-    public void OnPickUp(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
-    {
-        bool isPickUp = ctx.ReadValueAsButton();
-        if(isPickUp && IsSenseIngredients && !_isHolding)
-        {
-            ObjHolding.transform.SetParent(_objHoldingPoint.transform);
-            ObjHolding.GetComponent<Rigidbody>().isKinematic = true;
-            ObjHolding.transform.position = _objHoldingPoint.transform.position;
+        _playerInput.PickUpPutDown.performed += OnPickUpPutDown;
+        _playerInput.PickUpPutDown.canceled += OnPickUpPutDown;
 
-            _isHolding = true;
-            IsSenseIngredients = false;
+        _playerInput.Throw.performed += OnThrow;
+    }
+    private void Update()
+    {
+        Debug.DrawRay(_rayOrigin.position, transform.forward * _rayDistance, Color.red);
+    }
+
+    public void OnPickUpPutDown(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed)
+            return;
+
+        bool isCast = Physics.Raycast(_rayOrigin.position, transform.forward, out RaycastHit hitInfo, _rayDistance);
+        if (_holdableItem != null)
+            PutDown(isCast, hitInfo);
+        else if(isCast)
+            PickUp(hitInfo);
+    }
+    void PutDown(bool isCast, RaycastHit hitInfo)
+    {
+        bool isPlaced = false;
+        if (isCast && hitInfo.collider.TryGetComponent<Table>(out Table table))
+            isPlaced = table.OnPlace(_holdableItem);
+        
+        if(!isPlaced)
+            _holdableItem.OnReleased();
+
+        _holdableItem = null;
+    }
+    void PickUp(RaycastHit hitInfo)
+    {
+        if (hitInfo.collider.TryGetComponent<HoldableItem>(out HoldableItem item))
+        {
+            _holdableItem = item;
+            _holdableItem.OnPlaced(_holdPoint);
         }
+        else if (hitInfo.collider.TryGetComponent<Table>(out Table table))
+        {
+
+        }
+    }
+    public void OnThrow(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed)
+            return;
+        if (_holdableItem == null)
+            return;
+
+        _holdableItem.OnThrow();
+        _holdableItem = null;
     }
 }
