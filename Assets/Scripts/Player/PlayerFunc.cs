@@ -1,61 +1,78 @@
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class PlayerFunc : MonoBehaviour
 {
-    [SerializeField]
-    GameObject _prefHoldPoint = default;
+    //[SerializeField]
+    float _rayDistance = 1f;
+    Transform _rayOrigin = null;
+
     Transform _holdPoint = null;
-    public GameObject SensedObj { get; set; }
     HoldableItem _holdableItem = null;
-    bool _isHeld = false;
-
-    [SerializeField]
-    GameObject _prefSensor = default;
-    GameObject _objSensor = default;
-
-    public bool IsSenseIngredients { get; set; }
 
     InputSystem.PlayerActions _playerInput;
 
     void Awake()
     {
-        _holdPoint = Instantiate(_prefHoldPoint).transform;
-        _holdPoint.SetParent(transform, false);
-
-        _objSensor = Instantiate(_prefSensor);
-        _objSensor.transform.SetParent(transform, false);
+        _rayOrigin = transform.Find(Constants.RAY_ORIGIN_NAME);
+        _holdPoint = transform.Find(Constants.HOLD_POINT_NAME);
     }
     private void OnEnable()
     {
         _playerInput = InputManager.Instance.Player;
 
-        _playerInput.PickUp.performed += OnPickUp;
-        _playerInput.PickUp.canceled += OnPickUp;
+        _playerInput.PickUpPutDown.performed += OnPickUpPutDown;
+        _playerInput.PickUpPutDown.canceled += OnPickUpPutDown;
 
         _playerInput.Throw.performed += OnThrow;
     }
-    
-    public void OnPickUp(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    private void Update()
     {
-        bool isPickUp = ctx.ReadValueAsButton();
-        if(isPickUp && IsSenseIngredients && !_isHeld)
-        {
-            _holdableItem = SensedObj.GetComponent<HoldableItem>();
-            _holdableItem.OnPickUp(_holdPoint);
+        Debug.DrawRay(_rayOrigin.position, transform.forward * _rayDistance, Color.red);
+    }
 
-            _isHeld = true;
-            IsSenseIngredients = false;
+    public void OnPickUpPutDown(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed)
+            return;
+
+        bool isCast = Physics.Raycast(_rayOrigin.position, transform.forward, out RaycastHit hitInfo, _rayDistance);
+        if (_holdableItem != null)
+            PutDown(isCast, hitInfo);
+        else if(isCast)
+            PickUp(hitInfo);
+    }
+    void PutDown(bool isCast, RaycastHit hitInfo)
+    {
+        bool isPlaced = false;
+        if (isCast && hitInfo.collider.TryGetComponent<Table>(out Table table))
+            isPlaced = table.OnPlace(_holdableItem);
+        
+        if(!isPlaced)
+            _holdableItem.OnReleased();
+
+        _holdableItem = null;
+    }
+    void PickUp(RaycastHit hitInfo)
+    {
+        if (hitInfo.collider.TryGetComponent<HoldableItem>(out HoldableItem item))
+        {
+            _holdableItem = item;
+            _holdableItem.OnPlaced(_holdPoint);
+        }
+        else if (hitInfo.collider.TryGetComponent<Table>(out Table table))
+        {
+
         }
     }
     public void OnThrow(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
     {
-        bool isKeyDown = ctx.ReadValueAsButton();
-        if(isKeyDown && _isHeld)
-        {
-            _holdableItem.OnThrow();
-            _holdableItem = null;
+        if (!ctx.performed)
+            return;
+        if (_holdableItem == null)
+            return;
 
-            _isHeld = false;
-        }
+        _holdableItem.OnThrow();
+        _holdableItem = null;
     }
 }

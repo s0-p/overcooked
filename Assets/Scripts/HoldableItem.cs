@@ -12,21 +12,30 @@ public class HoldableItem : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody>();
     }
-    public void OnPickUp(Transform holdPoint)
+    public void OnPlaced(Transform holdPoint)
     {
         transform.SetParent(holdPoint);
         transform.position = holdPoint.position;
+        transform.rotation = holdPoint.rotation;
 
         _rigidbody.isKinematic = true;
         //_rigidbody.interpolation = ;
     }
-    public void OnThrow()
+    public void OnReleased()
     {
-        Vector3 throwDir = transform.root.forward * _throwForce;
         _rigidbody.isKinematic = false;
         //_rigidbody.interpolation = ;
 
         transform.parent = null;
+    }
+    public void OnThrow()
+    {
+        transform.parent = null;
+
+        _rigidbody.isKinematic = false;
+        //_rigidbody.interpolation = ;
+
+        Vector3 throwDir = transform.forward * _throwForce;
         _rigidbody.AddForce(throwDir, ForceMode.Impulse);
     }
 }
